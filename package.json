@@ -17,6 +17,7 @@
     "preview": "vite preview",
     "release:prepare": "node scripts/create-release-output.mjs",
     "release:serve": "serve .vercel/output/static --listen 4173 --no-clipboard --no-port-switching",
+    "smoke:release": "node scripts/smoke-release.mjs",
     "test": "vitest run --passWithNoTests",
     "test:coverage": "vitest run --coverage --passWithNoTests",
     "test:e2e": "playwright test",
