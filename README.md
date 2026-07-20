@@ -1,6 +1,6 @@
-# de
+# Pobres Pandas
 
-A TypeScript web application and an executable software-delivery laboratory.
+A static character-storytelling project and executable software-delivery laboratory. Its first story introduces Pandi: a sensitive panda with a big heart and a small social battery.
 
 ## Production
 
@@ -26,6 +26,7 @@ pnpm verify
 
 ## Wayfinding
 
+- [Pandi's initial character material](docs/product/pandi.md)
 - [Contribution workflow](CONTRIBUTING.md)
 - [Software delivery system](docs/engineering/software-delivery.md)
 - [Production rollback runbook](docs/runbooks/rollback-production.md)
