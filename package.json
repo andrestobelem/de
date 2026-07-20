@@ -19,15 +19,20 @@
     "test:coverage": "vitest run --coverage --passWithNoTests",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit --pretty false",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm test:e2e"
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm test:e2e",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@commitlint/cli": "21.2.1",
+    "@commitlint/config-conventional": "21.2.0",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.61.1",
     "@types/node": "24.10.13",
     "@vitest/coverage-v8": "4.1.10",
     "eslint": "10.7.0",
     "globals": "17.7.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.0.8",
     "prettier": "3.9.5",
     "typescript": "6.0.2",
     "typescript-eslint": "8.64.0",
