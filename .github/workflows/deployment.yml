@@ -83,7 +83,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install trusted deployment dependencies
@@ -163,7 +163,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: 24
+          node-version-file: .nvmrc
 
       - name: Smoke-test the preview release identity
         env:
@@ -246,7 +246,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install trusted promotion dependencies
