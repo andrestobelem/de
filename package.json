@@ -25,7 +25,8 @@
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit --pretty false",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm test:e2e",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prototype:pandi": "vite --open '/?prototype=pandi&variant=A'"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.1",
