@@ -109,18 +109,18 @@
                 <td><code>gh run watch &lt;run-id&gt; --exit-status</code></td>
               </tr>
               <tr>
-                <th>Preview — próximo</th>
-                <td><code>vercel deploy --prebuilt</code></td>
+                <th>Preview</th>
+                <td><code>delivery.yml → Deploy preview</code></td>
               </tr>
               <tr>
-                <th>Promote — próximo</th>
-                <td><code>vercel promote &lt;url&gt; --yes</code></td>
-              </tr>
-              <tr>
-                <th>Recovery — próximo</th>
+                <th>Promote</th>
                 <td>
-                  <code>vercel promote &lt;known-good-url&gt; --yes</code>
+                  <code>delivery.yml → Promote and verify production</code>
                 </td>
+              </tr>
+              <tr>
+                <th>Recovery</th>
+                <td><code>gh workflow run rollback.yml …</code></td>
               </tr>
             </tbody>
           </table>

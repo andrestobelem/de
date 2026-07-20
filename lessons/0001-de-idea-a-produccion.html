@@ -24,9 +24,9 @@
         <aside class="callout" aria-label="Estado actual">
           <span class="callout-icon" aria-hidden="true">●</span>
           <p>
-            <strong>Realidad del repositorio:</strong> commit stage y artifact
-            acceptance ya están verdes. Preview, promotion y recovery son el
-            próximo incremento; aparecen marcados como “siguiente”.
+            <strong>Realidad del repositorio:</strong> el workflow cubre desde
+            commit stage hasta producción y tiene un camino de rollback sin
+            rebuild. Cada stage aparece marcado como “activo”.
           </p>
         </aside>
       </header>
@@ -155,7 +155,7 @@
             >
               <span class="step-number">06</span>
               <span>Preview</span>
-              <span class="badge next">siguiente</span>
+              <span class="badge done">activo</span>
             </button>
             <button
               class="pipeline-step"
@@ -166,7 +166,7 @@
             >
               <span class="step-number">07</span>
               <span>Promote</span>
-              <span class="badge next">siguiente</span>
+              <span class="badge done">activo</span>
             </button>
             <button
               class="pipeline-step"
@@ -177,7 +177,7 @@
             >
               <span class="step-number">08</span>
               <span>Operate</span>
-              <span class="badge next">siguiente</span>
+              <span class="badge done">activo</span>
             </button>
           </nav>
 
@@ -333,9 +333,9 @@
               <p class="eyebrow">06 · Preview</p>
               <h3>Ejecutar el candidato en infraestructura real</h3>
               <p>
-                El próximo incremento desplegará el mismo Vercel Build Output
-                con `vercel deploy --prebuilt`. Un smoke remoto comprobará URL,
-                contenido y SHA antes de permitir promoción.
+                El workflow despliega el mismo Vercel Build Output con `vercel
+                deploy --prebuilt`. Un smoke remoto comprueba disponibilidad y
+                SHA antes de permitir promoción.
               </p>
               <dl class="stage-meta">
                 <div>
@@ -362,7 +362,7 @@
               <p class="eyebrow">07 · Promote</p>
               <h3>Cambiar el puntero, no los bytes</h3>
               <p>
-                En `main`, `vercel promote &lt;preview-url&gt; --yes` hará
+                En `main`, `vercel promote &lt;preview-url&gt; --yes` hace
                 actual ese deployment. Promover evita la divergencia “funcionó
                 en staging, falló en producción” causada por un segundo build.
               </p>
@@ -440,7 +440,7 @@
 
       <section aria-labelledby="status-title">
         <p class="eyebrow">Estado honesto</p>
-        <h2 id="status-title">Tenemos una tubería parcial, no CD completo</h2>
+        <h2 id="status-title">El recorrido técnico ya cierra el loop</h2>
         <div class="status-grid">
           <article class="card">
             <h3>Ya ejecutable</h3>
@@ -451,35 +451,38 @@
               </li>
               <li>
                 <span class="mark">✓</span
-                ><span>Commit stage en GitHub Actions</span>
+                ><span>Commit stage y artifact acceptance</span>
               </li>
               <li>
                 <span class="mark">✓</span
-                ><span>Build único, tar y SHA-256</span>
+                ><span>Build único, checksum y release SHA</span>
               </li>
               <li>
                 <span class="mark">✓</span
-                ><span>Acceptance sobre el artefacto</span>
+                ><span>Preview, promotion y smoke productivo</span>
+              </li>
+              <li>
+                <span class="mark">✓</span><span>Rollback sin recompilar</span>
               </li>
             </ul>
           </article>
           <article class="card">
-            <h3>Próximo tracer bullet</h3>
+            <h3>Aprendizaje operativo</h3>
             <ul class="status-list pending">
               <li>
                 <span class="mark">→</span
-                ><span>Proyecto y secretos de Vercel</span>
+                ><span>Practicar rollback y restauración</span>
               </li>
               <li>
-                <span class="mark">→</span><span>Preview y smoke remoto</span>
-              </li>
-              <li>
-                <span class="mark">→</span
-                ><span>Promoción automática desde `main`</span>
+                <span class="mark">→</span><span>Establecer baseline DORA</span>
               </li>
               <li>
                 <span class="mark">→</span
-                ><span>Smoke productivo y rollback drill</span>
+                ><span>Agregar release controls cuando hagan falta</span>
+              </li>
+              <li>
+                <span class="mark">→</span
+                ><span>Definir SLOs cuando haya usuarios reales</span>
               </li>
             </ul>
           </article>

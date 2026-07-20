@@ -31,4 +31,4 @@
 ## Gaps
 
 - Todavía no conocemos tamaño del equipo, frecuencia objetivo ni tolerancia al riesgo; no corresponde fijar gates humanos o SLOs hasta tener ese contexto.
-- Falta evidencia operativa de producción porque preview, promotion y rollback aún no están implementados.
+- Falta una línea base de uso real y métricas de entrega; primero debemos observar varias entregas y al menos un recovery drill.
