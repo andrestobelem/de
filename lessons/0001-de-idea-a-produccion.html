@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Lección interactiva sobre nuestro CI/CD y ciclo de desarrollo completo."
+    />
+    <title>De idea a producción — nuestro CI/CD</title>
+    <link rel="stylesheet" href="../assets/lesson.css" />
+    <script type="module" src="../assets/lesson.js"></script>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <p class="kicker">Lección 0001 · 8 minutos</p>
+        <h1>Un cambio, de idea a producción</h1>
+        <p class="lede">
+          El ciclo no es una colección de herramientas. Es una cadena de
+          evidencia: cada gate reduce una incertidumbre y el mismo artefacto
+          avanza hasta producción.
+        </p>
+        <aside class="callout" aria-label="Estado actual">
+          <span class="callout-icon" aria-hidden="true">●</span>
+          <p>
+            <strong>Realidad del repositorio:</strong> commit stage y artifact
+            acceptance ya están verdes. Preview, promotion y recovery son el
+            próximo incremento; aparecen marcados como “siguiente”.
+          </p>
+        </aside>
+      </header>
+
+      <section aria-labelledby="win-title">
+        <p class="eyebrow">Tu victoria en esta lección</p>
+        <h2 id="win-title">Poder narrar el recorrido sin nombrar YAML</h2>
+        <div class="objectives">
+          <article>
+            <h3>Seguir el cambio</h3>
+            <p>Identificar qué entra y qué sale de cada stage.</p>
+          </article>
+          <article>
+            <h3>Ubicar la evidencia</h3>
+            <p>Explicar qué incertidumbre elimina cada gate.</p>
+          </article>
+          <article>
+            <h3>Detectar el anti-patrón</h3>
+            <p>
+              Reconocer por qué recompilar antes de producción rompe la cadena.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="definitions-title">
+        <p class="eyebrow">Tres términos que no son sinónimos</p>
+        <h2 id="definitions-title">CI, delivery y deployment</h2>
+        <div class="definition-grid">
+          <article>
+            <h3>Continuous Integration</h3>
+            <p>
+              Integramos cambios pequeños con frecuencia y obtenemos feedback
+              automático. Una falla detiene el trabajo normal hasta recuperar
+              `main`.
+            </p>
+          </article>
+          <article>
+            <h3>Continuous Delivery</h3>
+            <p>
+              Cada cambio verde queda desplegable. Producción puede requerir una
+              decisión explícita, pero no trabajo técnico adicional.
+            </p>
+          </article>
+          <article>
+            <h3>Continuous Deployment</h3>
+            <p>
+              Cada cambio verde en `main` avanza automáticamente a producción.
+              Este es nuestro estado objetivo.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="map-title">
+        <p class="eyebrow">Mapa interactivo</p>
+        <h2 id="map-title">Seguí una idea de izquierda a derecha</h2>
+        <p class="lede">
+          Seleccioná cada stage. Prestá atención a la pareja
+          <strong>evidencia → decisión</strong>, no al nombre de la herramienta.
+        </p>
+
+        <div class="pipeline" data-stepper>
+          <nav class="pipeline-nav" aria-label="Stages del ciclo">
+            <button
+              class="pipeline-step"
+              type="button"
+              data-step
+              aria-controls="stage-1"
+              aria-selected="true"
+            >
+              <span class="step-number">01</span>
+              <span>Intake</span>
+              <span class="badge practice">práctica</span>
+            </button>
+            <button
+              class="pipeline-step"
+              type="button"
+              data-step
+              aria-controls="stage-2"
+              aria-selected="false"
+            >
+              <span class="step-number">02</span>
+              <span>Shape</span>
+              <span class="badge practice">práctica</span>
+            </button>
+            <button
+              class="pipeline-step"
+              type="button"
+              data-step
+              aria-controls="stage-3"
+              aria-selected="false"
+            >
+              <span class="step-number">03</span>
+              <span>Implement</span>
+              <span class="badge done">activo</span>
+            </button>
+            <button
+              class="pipeline-step"
+              type="button"
+              data-step
+              aria-controls="stage-4"
+              aria-selected="false"
+            >
+              <span class="step-number">04</span>
+              <span>Commit stage</span>
+              <span class="badge done">activo</span>
+            </button>
+            <button
+              class="pipeline-step"
+              type="button"
+              data-step
+              aria-controls="stage-5"
+              aria-selected="false"
+            >
+              <span class="step-number">05</span>
+              <span>Acceptance</span>
+              <span class="badge done">activo</span>
+            </button>
+            <button
+              class="pipeline-step"
+              type="button"
+              data-step
+              aria-controls="stage-6"
+              aria-selected="false"
+            >
+              <span class="step-number">06</span>
+              <span>Preview</span>
+              <span class="badge next">siguiente</span>
+            </button>
+            <button
+              class="pipeline-step"
+              type="button"
+              data-step
+              aria-controls="stage-7"
+              aria-selected="false"
+            >
+              <span class="step-number">07</span>
+              <span>Promote</span>
+              <span class="badge next">siguiente</span>
+            </button>
+            <button
+              class="pipeline-step"
+              type="button"
+              data-step
+              aria-controls="stage-8"
+              aria-selected="false"
+            >
+              <span class="step-number">08</span>
+              <span>Operate</span>
+              <span class="badge next">siguiente</span>
+            </button>
+          </nav>
+
+          <div aria-live="polite">
+            <article class="pipeline-panel card" id="stage-1" data-step-panel>
+              <p class="eyebrow">01 · Intake</p>
+              <h3>Convertir una señal en trabajo trazable</h3>
+              <p>
+                Una necesidad entra como GitHub Issue. Triage separa bug de
+                enhancement y decide si falta información, necesita una persona
+                o ya puede tomarla un agente.
+              </p>
+              <dl class="stage-meta">
+                <div>
+                  <dt>Entrada</dt>
+                  <dd>Problema u oportunidad</dd>
+                </div>
+                <div>
+                  <dt>Evidencia</dt>
+                  <dd>Impacto y contexto suficientes</dd>
+                </div>
+                <div>
+                  <dt>Salida</dt>
+                  <dd>Issue con estado canónico</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article
+              class="pipeline-panel card"
+              id="stage-2"
+              data-step-panel
+              hidden
+            >
+              <p class="eyebrow">02 · Shape</p>
+              <h3>Reducir ambigüedad antes de producir código</h3>
+              <p>
+                `/grill-with-docs` afila decisiones, `/to-spec` captura el
+                comportamiento esperado y `/to-tickets` recorta tracer bullets
+                verticales con dependencias explícitas.
+              </p>
+              <dl class="stage-meta">
+                <div>
+                  <dt>Entrada</dt>
+                  <dd>Issue aceptado</dd>
+                </div>
+                <div>
+                  <dt>Evidencia</dt>
+                  <dd>Seams y criterios observables</dd>
+                </div>
+                <div>
+                  <dt>Salida</dt>
+                  <dd>Tickets pequeños y ordenados</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article
+              class="pipeline-panel card"
+              id="stage-3"
+              data-step-panel
+              hidden
+            >
+              <p class="eyebrow">03 · Implement</p>
+              <h3>Hacer el cambio seguro más pequeño</h3>
+              <p>
+                Una rama muy corta toma un ticket. Para comportamiento usamos
+                Red → Green; cada commit es atómico, tiene Conventional Commit
+                con scope y queda verde bajo el feedback relevante.
+              </p>
+              <dl class="stage-meta">
+                <div>
+                  <dt>Entrada</dt>
+                  <dd>Un tracer bullet</dd>
+                </div>
+                <div>
+                  <dt>Evidencia</dt>
+                  <dd>Test rojo y luego verde</dd>
+                </div>
+                <div>
+                  <dt>Salida</dt>
+                  <dd>PR pequeña y revertible</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article
+              class="pipeline-panel card"
+              id="stage-4"
+              data-step-panel
+              hidden
+            >
+              <p class="eyebrow">04 · Commit stage</p>
+              <h3>Responder rápido: “¿vale la pena seguir?”</h3>
+              <p>
+                GitHub Actions valida commits, formato, lint, tipos y unit
+                tests. Luego compila una sola vez, crea Vercel Build Output y
+                empaqueta `release-&lt;SHA&gt;` con checksum. La corrida
+                observada tarda unos 22 segundos.
+              </p>
+              <dl class="stage-meta">
+                <div>
+                  <dt>Entrada</dt>
+                  <dd>Commit identificado por SHA</dd>
+                </div>
+                <div>
+                  <dt>Evidencia</dt>
+                  <dd>Checks baratos y deterministas</dd>
+                </div>
+                <div>
+                  <dt>Salida</dt>
+                  <dd>`release.tgz` inmutable</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article
+              class="pipeline-panel card"
+              id="stage-5"
+              data-step-panel
+              hidden
+            >
+              <p class="eyebrow">05 · Artifact acceptance</p>
+              <h3>Probar lo que realmente se desplegará</h3>
+              <p>
+                Otro job descarga el artefacto, verifica SHA-256, lo sirve por
+                HTTP y Playwright observa la interfaz pública. No consulta
+                internals ni vuelve a ejecutar el build. La corrida observada
+                tarda unos 52 segundos.
+              </p>
+              <dl class="stage-meta">
+                <div>
+                  <dt>Entrada</dt>
+                  <dd>Artefacto + checksum</dd>
+                </div>
+                <div>
+                  <dt>Evidencia</dt>
+                  <dd>Comportamiento en navegador</dd>
+                </div>
+                <div>
+                  <dt>Salida</dt>
+                  <dd>Candidato apto para deploy</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article
+              class="pipeline-panel card"
+              id="stage-6"
+              data-step-panel
+              hidden
+            >
+              <p class="eyebrow">06 · Preview</p>
+              <h3>Ejecutar el candidato en infraestructura real</h3>
+              <p>
+                El próximo incremento desplegará el mismo Vercel Build Output
+                con `vercel deploy --prebuilt`. Un smoke remoto comprobará URL,
+                contenido y SHA antes de permitir promoción.
+              </p>
+              <dl class="stage-meta">
+                <div>
+                  <dt>Entrada</dt>
+                  <dd>Artefacto aceptado</dd>
+                </div>
+                <div>
+                  <dt>Evidencia</dt>
+                  <dd>Smoke contra URL preview</dd>
+                </div>
+                <div>
+                  <dt>Salida</dt>
+                  <dd>Deployment inmutable verificado</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article
+              class="pipeline-panel card"
+              id="stage-7"
+              data-step-panel
+              hidden
+            >
+              <p class="eyebrow">07 · Promote</p>
+              <h3>Cambiar el puntero, no los bytes</h3>
+              <p>
+                En `main`, `vercel promote &lt;preview-url&gt; --yes` hará
+                actual ese deployment. Promover evita la divergencia “funcionó
+                en staging, falló en producción” causada por un segundo build.
+              </p>
+              <dl class="stage-meta">
+                <div>
+                  <dt>Entrada</dt>
+                  <dd>Preview verificado</dd>
+                </div>
+                <div>
+                  <dt>Evidencia</dt>
+                  <dd>Todos los gates verdes</dd>
+                </div>
+                <div>
+                  <dt>Salida</dt>
+                  <dd>Mismos bytes en producción</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article
+              class="pipeline-panel card"
+              id="stage-8"
+              data-step-panel
+              hidden
+            >
+              <p class="eyebrow">08 · Operate and learn</p>
+              <h3>Verificar el resultado y cerrar el loop</h3>
+              <p>
+                Un smoke de producción comprueba el SHA esperado. Si falla, se
+                detiene el flujo y se promueve un deployment conocido como
+                bueno. Lead time, frecuencia, fallas y recovery muestran dónde
+                mejorar el sistema después.
+              </p>
+              <dl class="stage-meta">
+                <div>
+                  <dt>Entrada</dt>
+                  <dd>Deployment promovido</dd>
+                </div>
+                <div>
+                  <dt>Evidencia</dt>
+                  <dd>Salud + métricas de entrega</dd>
+                </div>
+                <div>
+                  <dt>Salida</dt>
+                  <dd>Aprendizaje o recuperación</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="invariant-title">
+        <p class="eyebrow">La idea que sostiene todo</p>
+        <h2 id="invariant-title">Build once, promote</h2>
+        <div class="flow-equation" role="img" aria-label="Flujo del artefacto">
+          source@SHA → <strong>artifact(SHA)</strong> → acceptance → preview →
+          production
+        </div>
+        <div class="invariants">
+          <article>
+            <h3>Identidad</h3>
+            <p>El SHA conecta código, artefacto, deployment y diagnóstico.</p>
+          </article>
+          <article>
+            <h3>Inmutabilidad</h3>
+            <p>Después del build, ningún stage modifica los bytes.</p>
+          </article>
+          <article>
+            <h3>Monotonicidad</h3>
+            <p>Cada gate suma evidencia; una falla detiene la promoción.</p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="status-title">
+        <p class="eyebrow">Estado honesto</p>
+        <h2 id="status-title">Tenemos una tubería parcial, no CD completo</h2>
+        <div class="status-grid">
+          <article class="card">
+            <h3>Ya ejecutable</h3>
+            <ul class="status-list">
+              <li>
+                <span class="mark">✓</span
+                ><span>Feedback local y commitlint</span>
+              </li>
+              <li>
+                <span class="mark">✓</span
+                ><span>Commit stage en GitHub Actions</span>
+              </li>
+              <li>
+                <span class="mark">✓</span
+                ><span>Build único, tar y SHA-256</span>
+              </li>
+              <li>
+                <span class="mark">✓</span
+                ><span>Acceptance sobre el artefacto</span>
+              </li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Próximo tracer bullet</h3>
+            <ul class="status-list pending">
+              <li>
+                <span class="mark">→</span
+                ><span>Proyecto y secretos de Vercel</span>
+              </li>
+              <li>
+                <span class="mark">→</span><span>Preview y smoke remoto</span>
+              </li>
+              <li>
+                <span class="mark">→</span
+                ><span>Promoción automática desde `main`</span>
+              </li>
+              <li>
+                <span class="mark">→</span
+                ><span>Smoke productivo y rollback drill</span>
+              </li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="quiz-title">
+        <p class="eyebrow">Retrieval practice</p>
+        <h2 id="quiz-title">¿Qué ocurre después del preview verde?</h2>
+        <form
+          class="quiz"
+          data-quiz
+          data-correct="promote"
+          data-success="Avanzan los mismos bytes; no reaparece incertidumbre de build."
+          data-retry="La regla central es build once, promote."
+        >
+          <fieldset>
+            <legend>Elegí la acción compatible con nuestro modelo:</legend>
+            <div class="quiz-options">
+              <label
+                ><input type="radio" name="answer" value="rebuild" />
+                Reconstruir desde main</label
+              >
+              <label
+                ><input type="radio" name="answer" value="promote" /> Promover
+                el artefacto</label
+              >
+              <label
+                ><input type="radio" name="answer" value="edit" /> Editar
+                producción manualmente</label
+              >
+              <label
+                ><input type="radio" name="answer" value="wait" /> Esperar otra
+                revisión</label
+              >
+            </div>
+          </fieldset>
+          <button class="primary" type="submit">Verificar</button>
+          <p class="quiz-result" data-quiz-result aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="next-action" aria-labelledby="practice-title">
+        <p class="eyebrow">Práctica de 60 segundos</p>
+        <h2 id="practice-title">Contalo con tus palabras</h2>
+        <p>
+          Sin volver al mapa, explicá: ¿dónde nacen los bytes que llegan a
+          producción, qué dos evidencias principales reciben y cómo recuperamos
+          si el smoke productivo falla?
+        </p>
+        <p>
+          Respondeme en el chat. Tu respuesta decidirá si la próxima lección
+          profundiza artefactos, diagnóstico de gates o diseño del workflow.
+        </p>
+      </section>
+
+      <section aria-labelledby="sources-title">
+        <p class="eyebrow">Fuente primaria recomendada</p>
+        <h2 id="sources-title">Leé el modelo original, no una receta</h2>
+        <ul class="source-list">
+          <li>
+            <a
+              href="https://continuousdelivery.com/wp-content/uploads/2010/01/The-Deployment-Pipeline-by-Dave-Farley-2007.pdf"
+              >Dave Farley — The Deployment Pipeline</a
+            >: origen del modelo usado en esta lección.
+          </li>
+          <li>
+            <a href="https://continuousdelivery.com/implementing/patterns/"
+              >Deployment Pipeline Patterns</a
+            >: build once y promoción del mismo paquete.
+          </li>
+          <li>
+            <a href="https://dora.dev/guides/dora-metrics/">DORA metrics</a>:
+            cómo observar throughput e instability sin adivinar.
+          </li>
+        </ul>
+        <p>
+          ¿Algo no quedó claro? Preguntame: el agente es parte del feedback loop
+          de esta lección.
+        </p>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <div class="page-shell">
+        <span>CI/CD y ciclo de desarrollo · Lección 0001</span>
+        ·
+        <a href="../reference/delivery-pipeline-cheat-sheet.html"
+          >Abrir referencia rápida</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>
