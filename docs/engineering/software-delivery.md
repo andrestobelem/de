@@ -68,7 +68,7 @@ A push to `main` repeats integration and acceptance. The trusted deployment work
 
 Production: https://de-phi-ruby.vercel.app
 
-The production job and rollback workflow share the `production` concurrency group, preventing two alias changes from racing.
+The production job and rollback workflow share the `production` concurrency group. A rollback has cancellation priority, so it invalidates an older in-flight promotion before changing the alias. Mainline runs retain only the newest pending candidate; because commits are cumulative, every accepted change is still present in that candidate. A freshness check prevents a superseded SHA from becoming production.
 
 ### Artifact identity
 
@@ -88,7 +88,6 @@ GitHub Actions is the only deployment authority; Vercel's Git integration is not
 - `VERCEL_ORG_ID` — repository variable selecting the Vercel account.
 - `VERCEL_PROJECT_ID` — repository variable selecting the Vercel project.
 - `PRODUCTION_URL` — repository variable used by the post-promotion smoke test.
-- `VERCEL_ENABLED` — repository variable that explicitly enables deployment jobs.
 
 Both environments admit protected branches only and disable administrator bypass. Because `workflow_run` executes the workflow revision from `main`, a PR cannot alter the privileged commands or request either secret from its own ref. The privileged workflow treats the downloaded archive as untrusted data, never as executable code.
 
