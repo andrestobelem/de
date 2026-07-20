@@ -47,7 +47,7 @@ gh run list --workflow rollback.yml --limit 1
 gh run watch <run-id> --exit-status
 ```
 
-The workflow serializes on the `production` concurrency group, promotes the supplied deployment, and verifies the stable production URL against `expected_release`.
+The workflow serializes on the `production` concurrency group, resolves the URL with Vercel to reject mutable aliases or non-ready deployments, promotes the supplied deployment, and verifies the stable production URL against `expected_release`.
 
 ## Verify
 

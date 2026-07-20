@@ -69,6 +69,35 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify an immutable ready deployment was selected
+        env:
+          DEPLOYMENT_URL: ${{ inputs.deployment_url }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          inspection="$(
+            pnpm exec vercel inspect "$DEPLOYMENT_URL" \
+              --format=json \
+              --non-interactive \
+              --no-color \
+              --token="$VERCEL_TOKEN"
+          )"
+          canonical_host="$(jq --exit-status --raw-output '.url' <<< "$inspection")"
+          requested_host="${DEPLOYMENT_URL#https://}"
+          requested_host="${requested_host%/}"
+          ready_state="$(jq --exit-status --raw-output '.readyState' <<< "$inspection")"
+
+          if [[ "$requested_host" != "$canonical_host" ]]; then
+            echo "$DEPLOYMENT_URL is a mutable alias; use https://$canonical_host" >&2
+            exit 1
+          fi
+
+          if [[ "$ready_state" != "READY" ]]; then
+            echo "$DEPLOYMENT_URL is not ready (state: $ready_state)" >&2
+            exit 1
+          fi
+
       - name: Promote the known-good deployment without rebuilding
         env:
           DEPLOYMENT_URL: ${{ inputs.deployment_url }}
