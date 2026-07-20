@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Referencia rápida del pipeline de entrega de este repositorio."
+    />
+    <title>Referencia rápida — Delivery pipeline</title>
+    <link rel="stylesheet" href="../assets/lesson.css" />
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <p class="kicker">Referencia rápida · imprimible</p>
+        <h1>Delivery pipeline</h1>
+        <p class="lede">
+          Qué debe ocurrir, qué evidencia mirar y qué hacer cuando falla.
+        </p>
+      </header>
+
+      <section>
+        <p class="eyebrow">Flujo</p>
+        <div class="flow-equation">
+          issue → shape → implement → <strong>build once</strong> → acceptance →
+          preview → promote → verify
+        </div>
+      </section>
+
+      <section aria-labelledby="rules-title">
+        <p class="eyebrow">Invariantes</p>
+        <h2 id="rules-title">Reglas que no negociamos</h2>
+        <div class="invariants">
+          <article>
+            <h3>`main` releasable</h3>
+            <p>Rojo detiene integración normal.</p>
+          </article>
+          <article>
+            <h3>Mismos bytes</h3>
+            <p>Testear, desplegar y recuperar sin rebuild.</p>
+          </article>
+          <article>
+            <h3>Cambios pequeños</h3>
+            <p>Feedback rápido, diagnóstico y reversión simples.</p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="matrix-title">
+        <p class="eyebrow">Diagnóstico</p>
+        <h2 id="matrix-title">La falla indica dónde aprender</h2>
+        <div class="reference-block">
+          <table>
+            <thead>
+              <tr>
+                <th>Gate</th>
+                <th>Pregunta</th>
+                <th>Respuesta inicial</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Local</td>
+                <td>¿El cambio es coherente?</td>
+                <td>Corregir antes de push.</td>
+              </tr>
+              <tr>
+                <td>Commit stage</td>
+                <td>¿Vale la pena seguir?</td>
+                <td>Restaurar verde inmediatamente.</td>
+              </tr>
+              <tr>
+                <td>Acceptance</td>
+                <td>¿El artefacto se comporta bien?</td>
+                <td>Conservar diagnósticos; no promover.</td>
+              </tr>
+              <tr>
+                <td>Preview smoke</td>
+                <td>¿Corre en infraestructura real?</td>
+                <td>Investigar deploy/configuración.</td>
+              </tr>
+              <tr>
+                <td>Production smoke</td>
+                <td>¿La promoción quedó saludable?</td>
+                <td>Promover known-good y diagnosticar.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="commands-title">
+        <p class="eyebrow">Wayfinding</p>
+        <h2 id="commands-title">Comandos esenciales</h2>
+        <div class="reference-block">
+          <table>
+            <tbody>
+              <tr>
+                <th>Feedback completo local</th>
+                <td><code>pnpm verify</code></td>
+              </tr>
+              <tr>
+                <th>Ver corridas</th>
+                <td>
+                  <code>gh run list --workflow delivery.yml</code><br />
+                  <code>gh run list --workflow deployment.yml</code>
+                </td>
+              </tr>
+              <tr>
+                <th>Seguir una corrida</th>
+                <td><code>gh run watch &lt;run-id&gt; --exit-status</code></td>
+              </tr>
+              <tr>
+                <th>Preview</th>
+                <td><code>deployment.yml → Deploy accepted preview</code></td>
+              </tr>
+              <tr>
+                <th>Promote</th>
+                <td>
+                  <code>deployment.yml → Promote and verify production</code>
+                </td>
+              </tr>
+              <tr>
+                <th>Recovery</th>
+                <td><code>gh workflow run rollback.yml …</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="metrics-title">
+        <p class="eyebrow">DORA</p>
+        <h2 id="metrics-title">Medir el sistema, no premiar números</h2>
+        <div class="status-grid">
+          <article class="card">
+            <h3>Throughput</h3>
+            <p>
+              Lead time, deployment frequency y failed deployment recovery time.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Instability</h3>
+            <p>Change fail rate y deployment rework rate.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <div class="page-shell">
+        <a href="../lessons/0001-de-idea-a-produccion.html"
+          >Volver a la lección</a
+        >
+        · Basado en
+        <a href="https://continuousdelivery.com/implementing/patterns/"
+          >Continuous Delivery patterns</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>

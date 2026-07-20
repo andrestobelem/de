@@ -1,0 +1,31 @@
+name: Feature request
+description: Propose a new user capability or an improvement
+title: "feat: "
+labels:
+  - enhancement
+  - needs-triage
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should we solve?
+      description: Describe the user's problem without prescribing implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What outcome would be valuable?
+      description: Describe the observable change for the user.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: What evidence do we have?
+      description: Add examples, frequency, affected users, or prior attempts.
+  - type: textarea
+    id: scope
+    attributes:
+      label: Constraints or non-goals
+      description: Record boundaries that would keep the first increment small.
