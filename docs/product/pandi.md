@@ -34,11 +34,11 @@ La página debe provocar reconocimiento y ternura, no lástima.
 
 ### Rasgos
 
-| Rasgo         | Contenido                               |
-| ------------- | --------------------------------------- |
-| Superpoder    | Hacer compañía sin decir nada           |
-| Plan favorito | Manta, lluvia y cero notificaciones     |
-| Debilidad     | Los martes y los audios de ocho minutos |
+| Rasgo         | Contenido                            |
+| ------------- | ------------------------------------ |
+| Superpoder    | Hacer compañía sin decir nada        |
+| Plan favorito | Manta, lluvia y cero notificaciones  |
+| Debilidad     | Los martes y los audios de 8 minutos |
 
 ### Idea principal
 
