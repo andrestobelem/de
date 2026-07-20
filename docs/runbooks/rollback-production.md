@@ -12,7 +12,7 @@ You need:
 - the full 40-character Git SHA embedded in that deployment;
 - permission to dispatch GitHub Actions workflows.
 
-Find a candidate in the Vercel Deployments view or a previously successful GitHub `preview`/`production` environment. Confirm its identity before changing production:
+Find a candidate in the Vercel Deployments view, a previously successful GitHub `preview` environment, or the immutable deployment URL recorded in a successful production job summary. Confirm its identity before changing production:
 
 ```bash
 curl --fail --silent https://<deployment>.vercel.app/release.json
@@ -47,7 +47,7 @@ gh run list --workflow rollback.yml --limit 1
 gh run watch <run-id> --exit-status
 ```
 
-The workflow runs only from trusted `main`, serializes on the `production` concurrency group, and resolves the URL with Vercel to reject mutable aliases, non-ready deployments, or deployments from another project. It smoke-tests the candidate against `expected_release` **before** changing the production pointer, promotes it without rebuilding, and repeats the identity smoke against the stable production URL.
+The workflow runs only from trusted `main` and takes cancellation priority in the `production` concurrency group. It resolves the URL with Vercel to reject mutable aliases, non-ready deployments, deployments from another project, and releases that were not produced from an ancestor of `main`. It smoke-tests the candidate against `expected_release` **before** changing the production pointer, promotes it without rebuilding, and repeats the identity smoke against the stable production URL.
 
 ## Verify
 

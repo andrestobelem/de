@@ -44,7 +44,7 @@ jobs:
     timeout-minutes: 15
     concurrency:
       group: production
-      cancel-in-progress: false
+      cancel-in-progress: true
     environment:
       name: production
       url: ${{ vars.PRODUCTION_URL }}
@@ -68,6 +68,7 @@ jobs:
       - name: Check out trusted recovery code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
+          fetch-depth: 0
           persist-credentials: false
           ref: refs/heads/main
 
@@ -89,6 +90,7 @@ jobs:
       - name: Verify an immutable ready deployment was selected
         env:
           DEPLOYMENT_URL: ${{ inputs.deployment_url }}
+          EXPECTED_RELEASE: ${{ inputs.expected_release }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -113,6 +115,12 @@ jobs:
           selected_project_id="$(
             jq --exit-status --raw-output '.projectId' <<< "$deployment_details"
           )"
+          deployment_release="$(
+            jq --raw-output '.meta.githubCommitSha // ""' <<< "$deployment_details"
+          )"
+          deployment_ref="$(
+            jq --raw-output '.meta.githubCommitRef // ""' <<< "$deployment_details"
+          )"
 
           if [[ "$requested_host" != "$canonical_host" ]]; then
             echo "$DEPLOYMENT_URL is a mutable alias; use https://$canonical_host" >&2
@@ -126,6 +134,16 @@ jobs:
 
           if [[ "$selected_project_id" != "$VERCEL_PROJECT_ID" ]]; then
             echo "$DEPLOYMENT_URL does not belong to the configured project" >&2
+            exit 1
+          fi
+
+          if [[ "$deployment_release" != "$EXPECTED_RELEASE" || "$deployment_ref" != "main" ]]; then
+            echo "$DEPLOYMENT_URL was not created from the requested mainline release" >&2
+            exit 1
+          fi
+
+          if ! git merge-base --is-ancestor "$EXPECTED_RELEASE" origin/main; then
+            echo "$EXPECTED_RELEASE is not an ancestor of main" >&2
             exit 1
           fi
 
