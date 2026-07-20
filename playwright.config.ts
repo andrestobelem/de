@@ -1,7 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const remoteBaseUrl = process.env.BASE_URL;
-const trustedOidcToken = process.env.VERCEL_TRUSTED_OIDC_TOKEN;
 const localBaseUrl = "http://127.0.0.1:4173";
 
 export default defineConfig({
@@ -13,14 +12,7 @@ export default defineConfig({
   reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: remoteBaseUrl ?? localBaseUrl,
-    trace: trustedOidcToken ? "off" : "on-first-retry",
-    ...(trustedOidcToken
-      ? {
-          extraHTTPHeaders: {
-            "x-vercel-trusted-oidc-idp-token": trustedOidcToken,
-          },
-        }
-      : {}),
+    trace: "on-first-retry",
   },
   ...(remoteBaseUrl
     ? {}
