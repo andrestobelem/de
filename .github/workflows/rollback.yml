@@ -24,8 +24,22 @@ env:
   HUSKY: 0
 
 jobs:
+  authorize:
+    name: Authorize recovery from main
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Reject an untrusted workflow ref
+        run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Rollback must be dispatched from main, not $GITHUB_REF" >&2
+            exit 1
+          fi
+
   rollback:
     name: Promote and verify known-good deployment
+    needs: authorize
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -51,8 +65,11 @@ jobs:
             exit 1
           fi
 
-      - name: Check out the repository
+      - name: Check out trusted recovery code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: refs/heads/main
 
       - name: Install pnpm
         uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288 # v5
@@ -84,9 +101,18 @@ jobs:
               --token="$VERCEL_TOKEN"
           )"
           canonical_host="$(jq --exit-status --raw-output '.url' <<< "$inspection")"
+          deployment_id="$(jq --exit-status --raw-output '.id' <<< "$inspection")"
           requested_host="${DEPLOYMENT_URL#https://}"
           requested_host="${requested_host%/}"
           ready_state="$(jq --exit-status --raw-output '.readyState' <<< "$inspection")"
+          deployment_details="$(
+            curl --silent --show-error --fail-with-body \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v13/deployments/$deployment_id?teamId=$VERCEL_ORG_ID"
+          )"
+          selected_project_id="$(
+            jq --exit-status --raw-output '.projectId' <<< "$deployment_details"
+          )"
 
           if [[ "$requested_host" != "$canonical_host" ]]; then
             echo "$DEPLOYMENT_URL is a mutable alias; use https://$canonical_host" >&2
@@ -97,6 +123,18 @@ jobs:
             echo "$DEPLOYMENT_URL is not ready (state: $ready_state)" >&2
             exit 1
           fi
+
+          if [[ "$selected_project_id" != "$VERCEL_PROJECT_ID" ]]; then
+            echo "$DEPLOYMENT_URL does not belong to the configured project" >&2
+            exit 1
+          fi
+
+      - name: Verify the candidate before changing production
+        env:
+          BASE_URL: ${{ inputs.deployment_url }}
+          EXPECTED_RELEASE: ${{ inputs.expected_release }}
+          SMOKE_ATTEMPTS: 3
+        run: node scripts/smoke-release.mjs
 
       - name: Promote the known-good deployment without rebuilding
         env:

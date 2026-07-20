@@ -47,7 +47,7 @@ gh run list --workflow rollback.yml --limit 1
 gh run watch <run-id> --exit-status
 ```
 
-The workflow serializes on the `production` concurrency group, resolves the URL with Vercel to reject mutable aliases or non-ready deployments, promotes the supplied deployment, and verifies the stable production URL against `expected_release`.
+The workflow runs only from trusted `main`, serializes on the `production` concurrency group, and resolves the URL with Vercel to reject mutable aliases, non-ready deployments, or deployments from another project. It smoke-tests the candidate against `expected_release` **before** changing the production pointer, promotes it without rebuilding, and repeats the identity smoke against the stable production URL.
 
 ## Verify
 
