@@ -3,6 +3,13 @@ import { expect, test } from "@playwright/test";
 const expectedRelease = process.env.EXPECTED_RELEASE ?? "local";
 
 test("reports the deployed release as operational", async ({ page }) => {
+  const releaseResponse = await page.request.get("/release.json");
+
+  expect(releaseResponse.ok()).toBe(true);
+  await expect(releaseResponse.json()).resolves.toEqual({
+    release: expectedRelease,
+  });
+
   await page.goto("/");
 
   await expect(
