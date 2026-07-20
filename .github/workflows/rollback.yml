@@ -1,0 +1,118 @@
+name: Rollback production
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_url:
+        description: Immutable Vercel deployment URL to promote
+        required: true
+        type: string
+      expected_release:
+        description: Full Git SHA embedded in that deployment
+        required: true
+        type: string
+      reason:
+        description: Why production is being rolled back
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  CI: true
+  HUSKY: 0
+
+jobs:
+  rollback:
+    name: Promote and verify known-good deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+
+    steps:
+      - name: Validate recovery inputs
+        env:
+          DEPLOYMENT_URL: ${{ inputs.deployment_url }}
+          EXPECTED_RELEASE: ${{ inputs.expected_release }}
+        run: |
+          if [[ ! "$DEPLOYMENT_URL" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app$ ]]; then
+            echo "deployment_url must be an immutable vercel.app URL" >&2
+            exit 1
+          fi
+
+          if [[ ! "$EXPECTED_RELEASE" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "expected_release must be a full Git SHA" >&2
+            exit 1
+          fi
+
+      - name: Check out the repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288 # v5
+        with:
+          version: 10.33.2
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Promote the known-good deployment without rebuilding
+        env:
+          DEPLOYMENT_URL: ${{ inputs.deployment_url }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          pnpm exec vercel promote "$DEPLOYMENT_URL" \
+            --yes \
+            --timeout=5m \
+            --non-interactive \
+            --no-color \
+            --token="$VERCEL_TOKEN"
+
+      - name: Install recovery smoke-test browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Verify the recovered release in production
+        env:
+          BASE_URL: ${{ vars.PRODUCTION_URL }}
+          EXPECTED_RELEASE: ${{ inputs.expected_release }}
+        run: pnpm test:e2e
+
+      - name: Record recovery evidence
+        if: success()
+        env:
+          DEPLOYMENT_URL: ${{ inputs.deployment_url }}
+          EXPECTED_RELEASE: ${{ inputs.expected_release }}
+          RECOVERY_REASON: ${{ inputs.reason }}
+        run: |
+          {
+            echo "### Production rollback completed"
+            echo "- Deployment: $DEPLOYMENT_URL"
+            echo "- Release: $EXPECTED_RELEASE"
+            echo "- Reason: $RECOVERY_REASON"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload recovery diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: rollback-smoke-report-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
