@@ -40,6 +40,21 @@ describe("release archive verification CLI", () => {
     expect(result.stderr).toContain("checksum does not match");
   });
 
+  test("rejects an oversized checksum record before parsing it", async () => {
+    const fixture = await createFixture([
+      {
+        name: "output/config.json",
+        contents: '{"version":3}\n',
+      },
+    ]);
+    await writeFile(fixture.checksumPath, "0".repeat(1_024), "utf8");
+
+    const result = verify(fixture);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("checksum file must be exactly 78 bytes");
+  });
+
   test("extracts a checksummed static release with the expected identity", async () => {
     const fixture = await createFixture(staticReleaseEntries(release));
 

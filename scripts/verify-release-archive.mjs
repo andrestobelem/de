@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, posix, resolve, sep } from "node:path";
 import { Readable } from "node:stream";
 import { gunzipSync } from "node:zlib";
@@ -28,7 +28,10 @@ if (!/^[0-9a-f]{40}$/.test(expectedRelease)) {
   throw new Error("Expected release must be a full lowercase Git SHA");
 }
 
-const archiveStats = await stat(archivePath);
+const [archiveStats, checksumStats] = await Promise.all([
+  lstat(archivePath),
+  lstat(checksumPath),
+]);
 
 if (!archiveStats.isFile() || archiveStats.size > maximumArchiveBytes) {
   throw new Error(
@@ -36,8 +39,14 @@ if (!archiveStats.isFile() || archiveStats.size > maximumArchiveBytes) {
   );
 }
 
-const archive = await readFile(archivePath);
-const checksumRecord = await readFile(checksumPath, "utf8");
+if (!checksumStats.isFile() || checksumStats.size !== 78) {
+  throw new Error("Release checksum file must be exactly 78 bytes");
+}
+
+const [archive, checksumRecord] = await Promise.all([
+  readFile(archivePath),
+  readFile(checksumPath, "utf8"),
+]);
 const checksumMatch = /^([0-9a-f]{64}) {2}release\.tgz\n$/.exec(checksumRecord);
 
 if (!checksumMatch) {
