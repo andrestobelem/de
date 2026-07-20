@@ -282,3 +282,72 @@ jobs:
             test-results/
           if-no-files-found: ignore
           retention-days: 7
+
+  production:
+    name: Promote and verify production
+    needs: [deploy-preview, preview-smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288 # v5
+        with:
+          version: 10.33.2
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Promote the verified preview without rebuilding
+        env:
+          DEPLOYMENT_URL: ${{ needs.deploy-preview.outputs.url }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          pnpm exec vercel promote "$DEPLOYMENT_URL" \
+            --yes \
+            --timeout=5m \
+            --non-interactive \
+            --no-color \
+            --token="$VERCEL_TOKEN"
+
+          echo "### Production promotion" >> "$GITHUB_STEP_SUMMARY"
+          echo "Promoted $DEPLOYMENT_URL without rebuilding." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install production smoke-test browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Verify the promoted release in production
+        env:
+          BASE_URL: ${{ vars.PRODUCTION_URL }}
+          EXPECTED_RELEASE: ${{ github.sha }}
+        run: pnpm test:e2e
+
+      - name: Upload production diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: production-smoke-report-${{ github.sha }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
