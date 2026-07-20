@@ -153,12 +153,48 @@ a {
   line-height: 1.45;
 }
 
-.hero-caption {
-  margin: 2.5rem 0 0;
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+.hero-actions {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-top: 2.6rem;
+}
+
+.primary-link {
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1.35rem;
+  border: 1px solid #17382f;
+  color: #f4efe3;
+  background: #17382f;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-decoration: none;
   text-transform: uppercase;
+  transition: 160ms ease;
+}
+
+.primary-link:hover,
+.primary-link:focus-visible {
+  color: #17382f;
+  background: #ff654f;
+  outline: none;
+  box-shadow: 0.35rem 0.35rem 0 #17382f;
+  transform: translate(-0.2rem, -0.2rem);
+}
+
+.hero-actions > span {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.hero-actions strong {
+  font-size: 0.75rem;
 }
 
 .hero-art {
@@ -273,6 +309,144 @@ a {
   transform: rotate(-6deg);
 }
 
+.pandi-story {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(2rem, 8vw, 8rem);
+  width: min(100% - 3rem, 90rem);
+  margin: 0 auto;
+  padding: clamp(5rem, 10vw, 10rem) 0;
+  border-bottom: 1px solid rgb(23 56 47 / 32%);
+}
+
+.story-heading > p,
+.growing-cast > div > p:first-child {
+  margin: 0 0 2rem;
+  color: #cc4b3c;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.story-heading h2 {
+  max-width: 11ch;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.7rem, 5.5vw, 5.8rem);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 0.96;
+}
+
+.story-body {
+  max-width: 42rem;
+}
+
+.story-body > p {
+  margin: 0 0 1.6rem;
+  font-size: 1.04rem;
+  line-height: 1.75;
+}
+
+.story-body .story-lede {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+  line-height: 1.35;
+}
+
+.pandi-traits {
+  margin: 3rem 0 0;
+  padding: 0;
+  border-top: 1px solid rgb(23 56 47 / 32%);
+  list-style: none;
+}
+
+.pandi-traits li {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid rgb(23 56 47 / 32%);
+}
+
+.pandi-traits span {
+  font-size: 0.63rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.pandi-traits strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.pandi-quote {
+  display: grid;
+  width: min(100% - 3rem, 90rem);
+  min-height: 34rem;
+  margin: 0 auto;
+  place-items: center start;
+  border-bottom: 1px solid rgb(23 56 47 / 32%);
+}
+
+.pandi-quote blockquote {
+  max-width: 18ch;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.5rem, 6vw, 6rem);
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+}
+
+.growing-cast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4rem;
+  align-items: end;
+  width: min(100% - 3rem, 90rem);
+  margin: 0 auto;
+  padding: clamp(5rem, 9vw, 9rem) clamp(2rem, 6vw, 6rem);
+  background: #cadc9c;
+}
+
+.growing-cast > div {
+  max-width: 43rem;
+}
+
+.growing-cast > div > p:first-child {
+  color: #17382f;
+}
+
+.growing-cast h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.8rem, 5vw, 5.4rem);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.growing-cast h2 + p {
+  max-width: 36rem;
+  margin: 1.8rem 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  line-height: 1.6;
+}
+
+.coming-soon {
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .site-footer {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -351,6 +525,19 @@ a {
     width: 6.2rem;
   }
 
+  .pandi-story,
+  .growing-cast {
+    grid-template-columns: 1fr;
+  }
+
+  .pandi-quote {
+    min-height: 28rem;
+  }
+
+  .coming-soon {
+    justify-self: start;
+  }
+
   .site-footer {
     grid-template-columns: 1fr auto;
   }
@@ -363,6 +550,9 @@ a {
 @media (max-width: 34rem) {
   .site-header,
   .pandi-hero,
+  .pandi-story,
+  .pandi-quote,
+  .growing-cast,
   .site-footer {
     width: min(100% - 2rem, 90rem);
   }
@@ -372,8 +562,23 @@ a {
     text-align: right;
   }
 
+  .hero-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .hero-art {
     min-height: 27rem;
+  }
+
+  .pandi-traits li {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .growing-cast {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
   }
 
   .portrait-note {

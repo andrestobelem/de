@@ -28,7 +28,10 @@ appRoot.innerHTML = `
             Tengo un corazón gigante, una batería chiquita y un lugar libre
             abajo de la manta.
           </p>
-          <p class="hero-caption">Personaje 01 · Pobres Pandas</p>
+          <div class="hero-actions">
+            <a class="primary-link" href="#historia">Conoceme mejor</a>
+            <span>Tiempo de lectura<br /><strong>2 minutos</strong></span>
+          </div>
         </div>
 
         <div class="hero-art">
@@ -37,6 +40,45 @@ appRoot.innerHTML = `
           ${renderPandiPortrait()}
           <p class="portrait-note">hoy hice lo que pude ♡</p>
         </div>
+      </section>
+
+      <section class="pandi-story" id="historia" aria-labelledby="story-title">
+        <div class="story-heading">
+          <p>01 — Su historia</p>
+          <h2 id="story-title">Pandi siente<br />todo un poquito más.</h2>
+        </div>
+        <div class="story-body">
+          <p class="story-lede">
+            No llegó para salvar el mundo. Algunos días, llegar al martes ya
+            le parece bastante heroico.
+          </p>
+          <p>
+            Pandi observa, escucha y guarda las cosas importantes. Le gusta el
+            bambú crocante, cancelar planes con tiempo y acompañar sin llenar
+            todos los silencios.
+          </p>
+          <ul class="pandi-traits" aria-label="Rasgos de Pandi">
+            <li><span>Superpoder</span><strong>Hacer compañía sin decir nada</strong></li>
+            <li><span>Plan favorito</span><strong>Manta, lluvia y cero notificaciones</strong></li>
+            <li><span>Debilidad</span><strong>Los martes y los audios de 8 minutos</strong></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="pandi-quote" aria-label="Una idea de Pandi">
+        <blockquote>“No tenés que poder con todo para merecer un abrazo.”</blockquote>
+      </section>
+
+      <section class="growing-cast" aria-labelledby="cast-title">
+        <div>
+          <p>La pandilla está creciendo</p>
+          <h2 id="cast-title">Pandi es el primero.</h2>
+          <p>
+            Los demás Pobres Pandas todavía están juntando coraje para salir
+            de abajo de la manta.
+          </p>
+        </div>
+        <p class="coming-soon">Próximamente · Más personajes</p>
       </section>
     </main>
 
