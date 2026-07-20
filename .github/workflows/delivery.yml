@@ -72,6 +72,9 @@ jobs:
       - name: Run unit tests with coverage
         run: pnpm test:coverage
 
+      - name: Audit the complete dependency graph
+        run: pnpm audit:dependencies
+
       - name: Build once
         env:
           VITE_RELEASE_SHA: ${{ github.sha }}

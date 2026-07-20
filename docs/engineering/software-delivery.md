@@ -15,17 +15,17 @@ These choices follow Dave Farley's deployment-pipeline model and are evaluated a
 
 ## Development lifecycle
 
-| Stage               | Input                       | Executable evidence                                              | Output                                        |
-| ------------------- | --------------------------- | ---------------------------------------------------------------- | --------------------------------------------- |
-| Intake              | User problem or opportunity | Triage context is sufficient                                     | Categorized GitHub Issue                      |
-| Shape               | Accepted issue              | Observable stories, agreed test seams, explicit scope            | Spec and tracer-bullet tickets                |
-| Implement           | One ready ticket            | Red → Green at the highest useful seam                           | Small, independently revertible commits       |
-| Pull request        | Short-lived branch          | Review plus required GitHub checks                               | Integrable change                             |
-| Commit stage        | Git commit SHA              | Commitlint, format, lint, typecheck, unit-test capability, build | `release-<SHA>` artifact and SHA-256 checksum |
-| Artifact acceptance | Verified archive            | Playwright against the unpacked Vercel Build Output              | Deployable release candidate                  |
-| Preview             | Accepted candidate          | Vercel deploys with `--prebuilt`; HTTP smoke verifies full SHA   | Immutable preview deployment                  |
-| Production          | Green mainline preview      | Vercel promotes the preview; production smoke verifies full SHA  | Current production deployment                 |
-| Operate             | Live deployment             | Health and software-delivery signals                             | Learning, roll-forward, or rollback           |
+| Stage               | Input                       | Executable evidence                                                 | Output                                        |
+| ------------------- | --------------------------- | ------------------------------------------------------------------- | --------------------------------------------- |
+| Intake              | User problem or opportunity | Triage context is sufficient                                        | Categorized GitHub Issue                      |
+| Shape               | Accepted issue              | Observable stories, agreed test seams, explicit scope               | Spec and tracer-bullet tickets                |
+| Implement           | One ready ticket            | Red → Green at the highest useful seam                              | Small, independently revertible commits       |
+| Pull request        | Short-lived branch          | Review plus required GitHub checks                                  | Integrable change                             |
+| Commit stage        | Git commit SHA              | Commitlint, format, lint, typecheck, tests, dependency audit, build | `release-<SHA>` artifact and SHA-256 checksum |
+| Artifact acceptance | Verified archive            | Playwright against the unpacked Vercel Build Output                 | Deployable release candidate                  |
+| Preview             | Accepted candidate          | Vercel deploys with `--prebuilt`; HTTP smoke verifies full SHA      | Immutable preview deployment                  |
+| Production          | Green mainline preview      | Vercel promotes the preview; production smoke verifies full SHA     | Current production deployment                 |
+| Operate             | Live deployment             | Health and software-delivery signals                                | Learning, roll-forward, or rollback           |
 
 ## Git and review policy
 
@@ -84,6 +84,8 @@ GitHub Actions is the only deployment authority; Vercel's Git integration is not
 - `VERCEL_PROJECT_ID` — repository variable selecting the Vercel project.
 - `PRODUCTION_URL` — repository variable used by the post-promotion smoke test.
 - `VERCEL_ENABLED` — repository variable that explicitly enables deployment jobs.
+
+The Vercel CLI currently requires explicit pnpm overrides for vulnerable transitive tooling. `pnpm audit:dependencies` gates high/critical advisories across the complete graph; remove an override once the upstream dependency resolves to an equally safe or newer version.
 
 Rotate `VERCEL_TOKEN` immediately if it is exposed. Never add `.env*`, `.vercel/`, tokens, or IDs copied from credential files to a commit.
 
