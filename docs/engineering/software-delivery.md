@@ -15,17 +15,17 @@ These choices follow Dave Farley's deployment-pipeline model and are evaluated a
 
 ## Development lifecycle
 
-| Stage               | Input                       | Executable evidence                                                 | Output                                        |
-| ------------------- | --------------------------- | ------------------------------------------------------------------- | --------------------------------------------- |
-| Intake              | User problem or opportunity | Triage context is sufficient                                        | Categorized GitHub Issue                      |
-| Shape               | Accepted issue              | Observable stories, agreed test seams, explicit scope               | Spec and tracer-bullet tickets                |
-| Implement           | One ready ticket            | Red → Green at the highest useful seam                              | Small, independently revertible commits       |
-| Pull request        | Short-lived branch          | Review plus required GitHub checks                                  | Integrable change                             |
-| Commit stage        | Git commit SHA              | Commitlint, format, lint, typecheck, tests, dependency audit, build | `release-<SHA>` artifact and SHA-256 checksum |
-| Artifact acceptance | Verified archive            | Playwright against the unpacked Vercel Build Output                 | Deployable release candidate                  |
-| Preview             | Accepted candidate          | Vercel deploys with `--prebuilt`; HTTP smoke verifies full SHA      | Immutable preview deployment                  |
-| Production          | Green mainline preview      | Vercel promotes the preview; production smoke verifies full SHA     | Current production deployment                 |
-| Operate             | Live deployment             | Health and software-delivery signals                                | Learning, roll-forward, or rollback           |
+| Stage               | Input                       | Executable evidence                                             | Output                                        |
+| ------------------- | --------------------------- | --------------------------------------------------------------- | --------------------------------------------- |
+| Intake              | User problem or opportunity | Triage context is sufficient                                    | Categorized GitHub Issue                      |
+| Shape               | Accepted issue              | Observable stories, agreed test seams, explicit scope           | Spec and tracer-bullet tickets                |
+| Implement           | One ready ticket            | Red → Green at the highest useful seam                          | Small, independently revertible commits       |
+| Pull request        | Short-lived branch          | Review plus required GitHub checks                              | Integrable change                             |
+| Commit stage        | Git commit SHA              | Commitlint, format, lint, typecheck, tests, build               | `release-<SHA>` artifact and SHA-256 checksum |
+| Artifact acceptance | Verified archive            | Playwright against the unpacked Vercel Build Output             | Deployable release candidate                  |
+| Preview             | Accepted candidate          | Vercel deploys with `--prebuilt`; HTTP smoke verifies full SHA  | Immutable preview deployment                  |
+| Production          | Green mainline preview      | Vercel promotes the preview; production smoke verifies full SHA | Current production deployment                 |
+| Operate             | Live deployment             | Health and software-delivery signals                            | Learning, roll-forward, or rollback           |
 
 ## Git and review policy
 
@@ -41,25 +41,30 @@ See [`CONTRIBUTING.md`](../../CONTRIBUTING.md) for local commands.
 
 ## Deployment pipeline
 
-The source of truth is [`.github/workflows/delivery.yml`](../../.github/workflows/delivery.yml).
+The source of truth is split by trust boundary:
+
+- [`.github/workflows/delivery.yml`](../../.github/workflows/delivery.yml) builds and accepts a candidate without secrets.
+- [`.github/workflows/deployment.yml`](../../.github/workflows/deployment.yml) is loaded only from the protected default branch and performs credentialed deployment after the first workflow completes.
 
 ### Pull requests
 
-1. **Commit stage** creates `.vercel/output`, packages it as `release.tgz`, and records `release.tgz.sha256`.
-2. **Artifact acceptance** downloads that archive in a fresh job, verifies its checksum, serves it over HTTP, and runs Playwright.
-3. **Deploy preview** sends the accepted Build Output to Vercel with `--prebuilt --target=preview`.
-4. **Preview smoke** fetches `/` and `/release.json`; it requires the exact workflow SHA.
+1. **Commit stage** checks out the PR head SHA, creates `.vercel/output`, packages it as `release.tgz`, and records `release.tgz.sha256`.
+2. **Artifact acceptance** downloads that archive in a fresh job, validates it, serves it over HTTP, and runs Playwright.
+3. A privileged `workflow_run` starts only after acceptance. It checks out trusted deployment code from `main`, never PR code.
+4. **Deploy preview** downloads the candidate into runner-temporary storage. `release:verify` checks the digest, archive paths and types, static-only Build Output shape, size limits, and full release SHA before extraction. Vercel then receives it with `--prebuilt --target=preview`.
+5. **Preview smoke** fetches `/` and `/release.json`; it requires the exact source SHA. The trusted workflow reports the deployment and smoke statuses back to that SHA.
 
-Preview URLs are intentionally public. The repository and frontend are public, and previews contain the same client-visible bytes intended for production. Client bundles must never contain secrets.
+A fork receives unprivileged commit and artifact acceptance feedback but no credentialed preview. Preview URLs are intentionally public: this repository and frontend are public, and previews contain the same client-visible bytes intended for production. Client bundles must never contain secrets.
 
 ### Mainline
 
-A push to `main` repeats the pipeline from source and then runs **Promote and verify production**:
+A push to `main` repeats integration and acceptance. The trusted deployment workflow then runs **Promote and verify production**:
 
-1. promote the verified preview with `vercel promote`;
-2. do not invoke a build command;
-3. fetch the stable production URL;
-4. require `/release.json` to report the exact mainline SHA.
+1. deploy and smoke-test the accepted archive as a preview;
+2. promote that verified preview with `vercel promote`;
+3. do not invoke a build command;
+4. fetch the stable production URL;
+5. require `/release.json` to report the exact mainline SHA.
 
 Production: https://de-phi-ruby.vercel.app
 
@@ -79,15 +84,29 @@ If any identity differs, promotion fails.
 
 GitHub Actions is the only deployment authority; Vercel's Git integration is not used, avoiding a second hidden build path.
 
-- `VERCEL_TOKEN` — encrypted GitHub Actions secret used only by deploy/promote steps.
+- `VERCEL_TOKEN` — separate encrypted environment secrets in `preview` and `production`; there is no repository-level copy.
 - `VERCEL_ORG_ID` — repository variable selecting the Vercel account.
 - `VERCEL_PROJECT_ID` — repository variable selecting the Vercel project.
 - `PRODUCTION_URL` — repository variable used by the post-promotion smoke test.
 - `VERCEL_ENABLED` — repository variable that explicitly enables deployment jobs.
 
-The Vercel CLI currently requires explicit pnpm overrides for vulnerable transitive tooling. `pnpm audit:dependencies` gates high/critical advisories across the complete graph; remove an override once the upstream dependency resolves to an equally safe or newer version.
+Both environments admit protected branches only and disable administrator bypass. Because `workflow_run` executes the workflow revision from `main`, a PR cannot alter the privileged commands or request either secret from its own ref. The privileged workflow treats the downloaded archive as untrusted data, never as executable code.
 
-Rotate `VERCEL_TOKEN` immediately if it is exposed. Never add `.env*`, `.vercel/`, tokens, or IDs copied from credential files to a commit.
+The Vercel CLI currently requires explicit pnpm overrides for vulnerable transitive tooling. The scheduled [dependency-security workflow](../../.github/workflows/security.yml) checks the complete graph; remove an override once the upstream dependency resolves to an equally safe or newer version.
+
+Rotate both environment copies of `VERCEL_TOKEN` immediately if either is exposed. Never add `.env*`, `.vercel/`, tokens, or IDs copied from credential files to a commit.
+
+## Repository governance
+
+The GitHub API configuration was verified on 2026-07-20:
+
+- `main` requires a pull request, strict up-to-date status checks, linear history, and resolved conversations;
+- administrators are subject to branch protection;
+- force pushes and branch deletion are disabled;
+- squash is the only enabled merge method;
+- the `preview` and `production` environments accept protected branches only and prohibit administrator bypass.
+
+Repository settings are runtime configuration, not facts guaranteed by this Markdown file. Re-check them through the GitHub API after changing workflows or governance.
 
 ## Failure policy
 

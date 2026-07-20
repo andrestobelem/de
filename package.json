@@ -24,7 +24,7 @@
     "test:coverage": "vitest run --coverage --passWithNoTests",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit --pretty false",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm audit:dependencies && pnpm build && pnpm test:e2e",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build && pnpm test:e2e",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -334,8 +334,11 @@
               <h3>Ejecutar el candidato en infraestructura real</h3>
               <p>
                 El workflow despliega el mismo Vercel Build Output con `vercel
-                deploy --prebuilt`. Un smoke remoto comprueba disponibilidad y
-                SHA antes de permitir promoción.
+                deploy --prebuilt`. El deploy corre desde un workflow confiable
+                de <code>main</code>: trata el artefacto de la PR como datos,
+                valida su forma y nunca ejecuta código de la PR con secretos. Un
+                smoke remoto comprueba disponibilidad y SHA antes de permitir
+                promoción.
               </p>
               <dl class="stage-meta">
                 <div>

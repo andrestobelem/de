@@ -102,7 +102,10 @@
               </tr>
               <tr>
                 <th>Ver corridas</th>
-                <td><code>gh run list --workflow delivery.yml</code></td>
+                <td>
+                  <code>gh run list --workflow delivery.yml</code><br />
+                  <code>gh run list --workflow deployment.yml</code>
+                </td>
               </tr>
               <tr>
                 <th>Seguir una corrida</th>
@@ -110,12 +113,12 @@
               </tr>
               <tr>
                 <th>Preview</th>
-                <td><code>delivery.yml → Deploy preview</code></td>
+                <td><code>deployment.yml → Deploy accepted preview</code></td>
               </tr>
               <tr>
                 <th>Promote</th>
                 <td>
-                  <code>delivery.yml → Promote and verify production</code>
+                  <code>deployment.yml → Promote and verify production</code>
                 </td>
               </tr>
               <tr>

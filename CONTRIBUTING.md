@@ -44,6 +44,8 @@ pnpm verify
 
 The pre-commit hook formats staged files and runs type checking and unit tests. The commit-message hook enforces the Conventional Commit shape and required scope. Browser tests remain outside pre-commit so the fast local loop stays fast.
 
+`pnpm audit:dependencies` queries the live advisory database. Run it when changing dependencies; automation also runs it daily. It is deliberately separate from deterministic commit feedback because advisory data can change while source and lockfile bytes remain identical.
+
 ## Pull requests
 
 - Link the originating GitHub issue.
