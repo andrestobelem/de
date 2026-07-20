@@ -3,6 +3,10 @@ const expectedRelease = process.env.EXPECTED_RELEASE;
 const attempts = Number.parseInt(process.env.SMOKE_ATTEMPTS ?? "12", 10);
 const retryDelayMs = 2_000;
 
+if (!Number.isInteger(attempts) || attempts < 1) {
+  throw new Error("SMOKE_ATTEMPTS must be a positive integer");
+}
+
 if (!baseUrlValue) {
   throw new Error("BASE_URL is required");
 }
@@ -55,15 +59,15 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     console.log(`Release ${expectedRelease} is healthy at ${baseUrl.href}`);
     process.exit(0);
   } catch (error) {
-    lastError = error;
+    lastError = error instanceof Error ? error : new Error(String(error));
 
     if (attempt < attempts) {
       console.warn(
-        `Smoke attempt ${attempt}/${attempts} failed: ${error.message}`
+        `Smoke attempt ${attempt}/${attempts} failed: ${lastError.message}`
       );
       await wait(retryDelayMs);
     }
   }
 }
 
-throw lastError;
+throw lastError ?? new Error("Release smoke failed without an error");
