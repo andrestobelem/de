@@ -211,16 +211,23 @@ jobs:
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          deployment_url="$(
+          deploy_output="$(
             pnpm exec vercel deploy \
               --prebuilt \
               --target=preview \
               --archive=tgz \
               --non-interactive \
               --no-color \
-              --token="$VERCEL_TOKEN"
+              --token="$VERCEL_TOKEN" \
+              2>&1
           )"
-          deployment_url="$(printf '%s\n' "$deployment_url" | tail -n 1)"
+          printf '%s\n' "$deploy_output"
+          deployment_url="$(
+            grep --only-matching --extended-regexp \
+              'https://[a-zA-Z0-9.-]+\.vercel\.app' \
+              <<< "$deploy_output" \
+              | head -n 1
+          )"
 
           if [[ ! "$deployment_url" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app$ ]]; then
             echo "Unexpected deployment URL: $deployment_url" >&2
