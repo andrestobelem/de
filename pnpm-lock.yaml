@@ -60,6 +60,9 @@ importers:
       serve:
         specifier: 14.2.6
         version: 14.2.6
+      skills:
+        specifier: 1.5.17
+        version: 1.5.17
       tar-stream:
         specifier: 3.2.0
         version: 3.2.0
@@ -2533,6 +2536,11 @@ packages:
   signal-exit@4.1.0:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
+
+  skills@1.5.17:
+    resolution: {integrity: sha512-Mi8P0sy/4rLYESPTCw4tso1hj87zpD3KRVg1iFUlLby2V0+SNAyWNHo/Gq9cruNww8oCSjB9S2hIWtUbVnklcg==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   slice-ansi@7.1.2:
     resolution: {integrity: sha512-iOBWFgUX7caIZiuutICxVgX1SdxwAVFFKwt1EvMYYec/NWO5meOJ6K5uQxhrYBdQJne4KxiqZc+KptFOWFSI9w==}
@@ -5383,6 +5391,10 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
+  skills@1.5.17:
+    dependencies:
+      yaml: 2.9.0
+
   slice-ansi@7.1.2:
     dependencies:
       ansi-styles: 6.2.3
@@ -5779,8 +5791,7 @@ snapshots:
 
   yallist@5.0.0: {}
 
-  yaml@2.9.0:
-    optional: true
+  yaml@2.9.0: {}
 
   yargs-parser@22.0.0: {}
 

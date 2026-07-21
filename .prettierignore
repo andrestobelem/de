@@ -1,6 +1,7 @@
 dist
 .vercel
 coverage
+.agents
 playwright-report
 test-results
 pnpm-lock.yaml
