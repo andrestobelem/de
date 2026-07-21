@@ -1,6 +1,6 @@
 # Pandi: material inicial
 
-Estado: **candidato a canon v0.1**. Este material fue generado para la primera página de producción y necesita validación humana después del preview de #7. La exploración visual original permanece en #5 y en la PR descartable #6.
+Estado: **canon inicial v0.1**. Este material fue aprobado para la primera página de producción después del preview de #7. Puede evolucionar mediante feedback de producto; la exploración visual original permanece en #5 y en la PR descartable #6.
 
 ## Idea central
 
@@ -85,4 +85,4 @@ El retrato es un SVG original construido con formas simples dentro de `src/main.
 
 ## Límites del canon
 
-Todavía no se definieron edad, ubicación, familia, trabajo ni biografía extensa. Tampoco se decidió si los textos actuales serán permanentes. Esos datos no deben inventarse hasta que ayuden a contar una historia o diferenciar a otro personaje.
+Todavía no se definieron edad, ubicación, familia, trabajo ni biografía extensa. Los textos actuales están aprobados como primera versión, no como material inmutable. Los datos nuevos no deben inventarse hasta que ayuden a contar una historia o diferenciar a otro personaje.
